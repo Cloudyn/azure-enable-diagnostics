@@ -1,0 +1,134 @@
+<WadCfg>
+  <DiagnosticMonitorConfiguration xmlns="http://schemas.microsoft.com/ServiceHosting/2010/10/DiagnosticsConfiguration" overallQuotaInMB="4096">
+    <DiagnosticInfrastructureLogs scheduledTransferPeriod="PT1M" scheduledTransferLogLevelFilter="Warning" />
+    <PerformanceCounters scheduledTransferPeriod="PT0S">
+      <PerformanceCounterConfiguration counterSpecifier="\Processor(_Total)\% Processor Time" sampleRate="PT15S" unit="Percent">
+        <annotation displayName="CPU percentage guest OS" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Processor(_Total)\% Interrupt Time" sampleRate="PT15S" unit="Percent">
+        <annotation displayName="CPU interrupt time" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Processor(_Total)\% Privileged Time" sampleRate="PT15S" unit="Percent">
+        <annotation displayName="CPU privileged time" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Processor Information(_Total)\Parking Status" sampleRate="PT15S" unit="Count">
+        <annotation displayName="CPU parking status" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Processor(_Total)\% User Time" sampleRate="PT15S" unit="Percent">
+        <annotation displayName="CPU user time" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Processor Information(_Total)\% Processor Performance" sampleRate="PT15S" unit="Count">
+        <annotation displayName="Processor percent perf." locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Processor Information(_Total)\Processor Frequency" sampleRate="PT15S" unit="Count">
+        <annotation displayName="Processor frequency" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\System\Threads" sampleRate="PT15S" unit="Count">
+        <annotation displayName="Threads" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\System\Processes" sampleRate="PT15S" unit="Count">
+        <annotation displayName="Processes" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Thread(_Total)\Context Switches/sec" sampleRate="PT15S" unit="CountPerSecond">
+        <annotation displayName="Context switches" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Memory\Committed Bytes" sampleRate="PT15S" unit="Bytes">
+        <annotation displayName="Memory committed" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Memory\Available Bytes" sampleRate="PT15S" unit="Bytes">
+        <annotation displayName="Memory available" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Memory\% Committed Bytes In Use" sampleRate="PT15S" unit="Percent">
+        <annotation displayName="Memory percentage" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Memory\Cache Faults/sec" sampleRate="PT15S" unit="CountPerSecond">
+        <annotation displayName="Cache faults" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Memory\Page Faults/sec" sampleRate="PT15S" unit="CountPerSecond">
+        <annotation displayName="Page faults" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Memory\Page Reads/sec" sampleRate="PT15S" unit="CountPerSecond">
+        <annotation displayName="Page reads" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Memory\Pages/sec" sampleRate="PT15S" unit="CountPerSecond">
+        <annotation displayName="Memory pages" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Memory\Transition Faults/sec" sampleRate="PT15S" unit="CountPerSecond">
+        <annotation displayName="Transition faults" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Memory\Pool Paged Bytes" sampleRate="PT15S" unit="Bytes">
+        <annotation displayName="Paged pool" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Memory\Pool Nonpaged Bytes" sampleRate="PT15S" unit="Bytes">
+        <annotation displayName="Non-paged pool" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Process(_Total)\% Processor Time" sampleRate="PT15S" unit="Percent">
+        <annotation displayName="Process total time" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Process(_Total)\Page Faults/sec" sampleRate="PT15S" unit="CountPerSecond">
+        <annotation displayName="Process page faults" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Process(_Total)\Thread Count" sampleRate="PT15S" unit="Count">
+        <annotation displayName="Process total threads" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Process(_Total)\Handle Count" sampleRate="PT15S" unit="Count">
+        <annotation displayName="Process total handles" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Process(_Total)\Private Bytes" sampleRate="PT15S" unit="Bytes">
+        <annotation displayName="Process function bytes" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Process(_Total)\Working Set" sampleRate="PT15S" unit="Bytes">
+        <annotation displayName="Process working set" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Process(_Total)\Working Set - Private" sampleRate="PT15S" unit="Bytes">
+        <annotation displayName="Process function working set" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\PhysicalDisk(_Total)\Disk Read Bytes/sec" sampleRate="PT15S" unit="BytesPerSecond">
+        <annotation displayName="Disk read guest OS" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\PhysicalDisk(_Total)\Disk Write Bytes/sec" sampleRate="PT15S" unit="BytesPerSecond">
+        <annotation displayName="Disk write guest OS" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Web Service(_Total)\Bytes Total/Sec" sampleRate="PT15S" unit="BytesPerSecond">
+        <annotation displayName="Web service bytes" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Web Service(_Total)\ISAPI Extension Requests/sec" sampleRate="PT15S" unit="CountPerSecond">
+        <annotation displayName="ISAPI extension requests" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Web Service(_Total)\Connection Attempts/sec" sampleRate="PT15S" unit="CountPerSecond">
+        <annotation displayName="Web connection attempts" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Web Service(_Total)\Current Connections" sampleRate="PT15S" unit="Count">
+        <annotation displayName="Web current connections" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Web Service(_Total)\Get Requests/sec" sampleRate="PT15S" unit="CountPerSecond">
+        <annotation displayName="Web get requests" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\Web Service(_Total)\Post Requests/sec" sampleRate="PT15S" unit="CountPerSecond">
+        <annotation displayName="Web post requests" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\TCPv4\Connections Established" sampleRate="PT15S" unit="Count">
+        <annotation displayName="TCP connections established" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\TCPv4\Connection Failures" sampleRate="PT15S" unit="Count">
+        <annotation displayName="TCP connections failed" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\TCPv4\Connections Reset" sampleRate="PT15S" unit="Count">
+        <annotation displayName="TCP connections reset" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\TCPv4\Segments Sent/sec" sampleRate="PT15S" unit="CountPerSecond">
+        <annotation displayName="TCP segments sent" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\TCPv4\Segments Received/sec" sampleRate="PT15S" unit="CountPerSecond">
+        <annotation displayName="TCP segments received" locale="en-us" />
+      </PerformanceCounterConfiguration>
+      <PerformanceCounterConfiguration counterSpecifier="\TCPv4\Segments Retransmitted/sec" sampleRate="PT15S" unit="CountPerSecond">
+        <annotation displayName="TCP seg. restransmitted" locale="en-us" />
+      </PerformanceCounterConfiguration>
+    </PerformanceCounters>
+    <Metrics resourceId="">
+      <MetricAggregation scheduledTransferPeriod="PT1H" />
+      <MetricAggregation scheduledTransferPeriod="PT1M" />
+    </Metrics>
+  </DiagnosticMonitorConfiguration>
+</WadCfg>
