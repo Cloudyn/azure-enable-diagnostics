@@ -163,6 +163,8 @@
 
                 if ($extension) {
                     $extensionName = if ([string]::IsNullOrWhiteSpace($extension.Name)) {"LinuxDiagnostic"} else {$extension.Name}
+                } else {
+                    $extensionName = "LinuxDiagnostic"
                 }
 
                 Write-Host("Using $extensionName as linux diagnostics extension name")
