@@ -3,7 +3,7 @@
     [ValidateSet("Arm","Classic")] 
     [string] $DeploymentModel,
     [ValidateSet("Windows","Linux")] 
-    [string] $OsType = "Windows",
+    [string] $OsType,
 	[switch] $ChooseSubscription = $true,
 	[switch] $ChooseStorage,
 	[switch] $ChooseVM,
