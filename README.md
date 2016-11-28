@@ -1,6 +1,6 @@
 # Azure Enable Diagnostics
 
-azure-enable-diagnostics automates enabling monitoring Diagnostics on Azure VMs.
+azure-enable-diagnostics automates enabling Monitoring Diagnostics on Azure VMs.
 
 For details on the context for this utility, see [Enabling Azure Diagnostics](https://www.cloudyn.com/blog/)
 
@@ -50,7 +50,7 @@ When you close session, the policy will return to default.
     * Prompt the user to choose which subscriptions assigned to the current user should have their subscriptions enabled.
     * Default = true
 * **ChooseStorage**
-    * Prompt the user to choose which Storage Accounts should be used per ResourceGroup-Location combination.
+    * Prompt the user to choose/create which Standard Storage Accounts should be used per ResourceGroup-Location combination.
     * Default = false
 * **ChooseVM**
     * Prompt the user to choose which VMs should have Diagnostics enabled.
@@ -61,12 +61,12 @@ When you close session, the policy will return to default.
 
 
 #Examples
-Enable Diagnostics on all ARM specific VMs, within specific subscriptions
+Enable Diagnostics on all ARM specific VMs, within specific subscriptions.
 Automatically determine storage account to be used
 ```PowerShell
 .\EnableDiag.ps1 –DeploymentModel 'Arm'
 ```
-Enable Diagnostics on specific ARM VMs, within specific subscriptions
+Enable Diagnostics on specific ARM VMs, within specific subscriptions.
 Automatically determine storage account to be used
 ```PowerShell
 .\EnableDiag.ps1 –DeploymentModel 'Arm' -ChooseSubscription -ChooseVM
@@ -75,8 +75,31 @@ Enable Diagnostics on specific Classic VMs, within specific subscriptions, choos
 ```PowerShell
 .\EnableDiag.ps1 –DeploymentModel 'Classic' -ChooseSubscription -ChooseVM -ChooseStorage
 ```
-Enable Diagnostics on specific Classic Linux VMs, within specific subscriptions, overriding existing diagnostic settings
+Enable Diagnostics on specific Classic Linux VMs, within specific subscriptions, overriding existing diagnostic settings.
 Automatically determine storage account to be used
 ```PowerShell
 .\EnableDiag.ps1 –DeploymentModel 'Classic' -OsType 'Linux' -OverrideDiagnostics
 ```
+
+#Troubleshooting
+## Security warning when running the script
+You may get the following warning 3 times when running script:
+```PowerShell
+"Run only scripts that you trust. While scripts from the internet can be useful, this script can potentially harm your
+computer. If you trust this script, use the Unblock-File cmdlet to allow the script to run without this warning
+message. Do you want to run C:\..\EnableDiag.ps1?"
+[D] Do not run  [R] Run once  [S] Suspend  [?] Help (default is "D"):
+```
+Press "R".
+Alternatively
+```PowerShell
+Unblock-File EnableDiag.ps1
+Unblock-File ArmModule.ps1
+Unblock-File ClassicModule.ps1
+Unblock-File CommonModule.ps1
+```
+
+## Azure Portal currently doesn’t support configuring virtual machine diagnostics using JSON
+After enabling diagnostics on a Classic VM, you may see the following message in the Portal UI:
+"The Azure Portal currently doesn’t support configuring virtual machine diagnostics using JSON. Instead, use PowerShell or CLI to configure diagnostics for this machine".
+This message is should automatically disappear when you recheck the VM a bit later.
