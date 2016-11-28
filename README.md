@@ -21,22 +21,12 @@ The outcome of the script is logged to file.
 
 
 #Prerequisites
-
-##Once off
+The following installation task is required once-off:
 Start "Windows PowerShell" with "Run as Administrator"
 ```PowerShell
 Install-Module Azure
 Install-Module AzureRM -Force
 ```
-
-##Per session
-Type the following to enable running an unsigned script in PowerShell session.
-```PowerShell
-Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
-```
-Type "Y" to change the execution policy.
-When you close session, the policy will return to default.
-
 
 #Parameters
 * **DeploymentModel**
@@ -82,16 +72,31 @@ Automatically determine storage account to be used
 ```
 
 #Troubleshooting
-## Security warning when running the script
+
+## Non digitally signed warning
+You may get the following warning when running script:
+```PowerShell
+File CommonModules.ps1 cannot be loaded. The file CommonModules.ps1 is not digitally signed.
+You cannot run this script on the current system. For more information about running scripts and setting execution
+policy, see about_Execution_Policies at http://go.microsoft.com/fwlink/?LinkID=135170.
+```
+To address this, type the following to enable running an unsigned script in PowerShell session.
+```PowerShell
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
+```
+Type "Y" to change the execution policy.
+When you close session, the policy will return to default.
+
+
+## Non trusted scripts warning
 You may get the following warning 3 times when running script:
 ```PowerShell
-"Run only scripts that you trust. While scripts from the internet can be useful, this script can potentially harm your
+Run only scripts that you trust. While scripts from the internet can be useful, this script can potentially harm your
 computer. If you trust this script, use the Unblock-File cmdlet to allow the script to run without this warning
-message. Do you want to run C:\..\EnableDiag.ps1?"
+message. Do you want to run EnableDiag.ps1?
 [D] Do not run  [R] Run once  [S] Suspend  [?] Help (default is "D"):
 ```
-Press "R".
-Alternatively
+To address this, either press "R" for each of the 3 files presented, or alternatively type:
 ```PowerShell
 Unblock-File EnableDiag.ps1
 Unblock-File ArmModule.ps1
@@ -99,7 +104,7 @@ Unblock-File ClassicModule.ps1
 Unblock-File CommonModule.ps1
 ```
 
-## Azure Portal currently doesn’t support configuring virtual machine diagnostics using JSON
+## Portal doesn’t support configuring VM diagnostics using JSON
 After enabling diagnostics on a Classic VM, you may see the following message in the Portal UI:
 "The Azure Portal currently doesn’t support configuring virtual machine diagnostics using JSON. Instead, use PowerShell or CLI to configure diagnostics for this machine".
 This message is should automatically disappear when you recheck the VM a bit later.
