@@ -21,7 +21,7 @@ The outcome of the script is logged to file.
 
 
 #Prerequisites
-The following installation task is required once-off:
+The following installation tasks are required once-off.
 Start "Windows PowerShell" with "Run as Administrator"
 ```PowerShell
 Install-Module Azure
@@ -30,12 +30,13 @@ Install-Module AzureRM -Force
 
 #Parameters
 * **DeploymentModel**
-    * "Arm" / "Classic"  (Mandatory)
+    * "Arm" / "Classic"
+    * Mandatory
     * Arm refers to "Azure Resource Manager"
     * Classic refers to "Service Manager"
 * **OsType**
     * "Windows" / "Linux"
-    * Optional. Default = both
+    * Default = both
 * **ChooseSubscription**
     * Prompt the user to choose which subscriptions assigned to the current user should have their subscriptions enabled.
     * Default = true
@@ -75,7 +76,7 @@ Automatically determine storage account to be used
 
 ## Non digitally signed warning
 You may get the following warning when running script:
-```PowerShell
+```
 File CommonModules.ps1 cannot be loaded. The file CommonModules.ps1 is not digitally signed.
 You cannot run this script on the current system. For more information about running scripts and setting execution
 policy, see about_Execution_Policies at http://go.microsoft.com/fwlink/?LinkID=135170.
@@ -90,7 +91,7 @@ When you close session, the policy will return to default.
 
 ## Non trusted scripts warning
 You may get the following warning 3 times when running script:
-```PowerShell
+```
 Run only scripts that you trust. While scripts from the internet can be useful, this script can potentially harm your
 computer. If you trust this script, use the Unblock-File cmdlet to allow the script to run without this warning
 message. Do you want to run EnableDiag.ps1?
@@ -108,3 +109,11 @@ Unblock-File CommonModule.ps1
 After enabling diagnostics on a Classic VM, you may see the following message in the Portal UI:
 "The Azure Portal currently doesn’t support configuring virtual machine diagnostics using JSON. Instead, use PowerShell or CLI to configure diagnostics for this machine".
 This message is should automatically disappear when you recheck the VM a bit later.
+
+
+# Customizing
+The configuration can be overridden by custom defined user diagnostics by replacing the *DiagConfig.xml file(s) before running the script.
+
+## Referenced articles
+https://docs.microsoft.com/en-us/azure/virtual-machines/virtual-machines-windows-ps-extensions-diagnostics
+https://docs.microsoft.com/en-us/azure/virtual-machines/virtual-machines-linux-classic-diagnostic-extension
