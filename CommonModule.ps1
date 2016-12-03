@@ -34,14 +34,14 @@
     		[string] $ResourceGroupName,
     		[Parameter(Mandatory=$true)]
     		[string] $Location,
-            [bool]$DebugMode
+            [bool]$ChooseStorage
     	)
     
     	$storageName = $null
     
-    	if($DebugMode) {
+    	if($ChooseStorage) {
     		Write-Host("Enter name for storage account for resource group '$ResourceGroupName' in location '$Location'")
-            if (ToSkip "Use auto name generation?" $DebugMode) {
+            if (ToSkip "Use auto name generation?" $ChooseStorage) {
         		Write-Host("Name should contain only lowercase alphanumeric characters, at least 6 characters and maximum 24")
     		    $storageName = Read-Host ("Enter storage account name")
 

@@ -4,7 +4,7 @@
     [string] $DeploymentModel,
     [ValidateSet("Windows","Linux")] 
     [string] $OsType,
-	[switch] $ChooseSubscription = $true,
+	[switch] $ChooseSubscription,
 	[switch] $ChooseStorage,
 	[switch] $ChooseVM,
 	[switch] $OverrideDiagnostics
@@ -71,7 +71,7 @@ function AcquireStorageAccounts() {
 	Write-Host("Checking storage in each resource group and location")
 
     $allStorages = LoadStorageAccounts
-	$storages = @{}
+	$storagesToUse = @{}
     
 	$vmGroupedByLocation = $vms | Group-Object -Property Location
 	foreach ($vmLocationGroup in $vmGroupedByLocation) {
@@ -85,17 +85,29 @@ function AcquireStorageAccounts() {
 	    foreach ($vmResourceGroupGroup in $vmGroupedByResourceGroup)
 	    {
 		    $resourceGroupName = $vmResourceGroupGroup.Name
-		    $storage = $locationStorages | where { $_.ResourceGroupName -eq $resourceGroupName  }
+		    $storages = $locationStorages | where { $_.ResourceGroupName -eq $resourceGroupName  }
 
 		    $toCreate = $false
             $storageAccountResult = $null
 
-            if ($storage -ne $null) {
+            $storageToUse = $null
+            if ($storages -ne $null) {
                 if ($ChooseStorage){
-			        $storageName = $storage[0].StorageAccountName
+			        Write-Host("There are existing storage account/s for resource group '$resourceGroupName' in location '$location'")
 
-			        Write-Host("There exists '$storageName' storage account for resource group '$resourceGroupName' in location '$location'")
-                    $toCreate = ToSkip "Use it?" $ChooseStorage
+			        $storageName = $storages | foreach {Write-Host($_.StorageAccountName)}
+                    $toCreate = ToSkip "Use one of them?" $ChooseStorage
+
+                    if (!$toCreate) {
+
+                        $chosen = $false
+                        while (!$chosen) {
+                            $choice = Read-Host ("Enter name of storage account you want to use")
+                            $storageToUse = $storages | where {$_.StorageAccountName -eq $choice}
+
+                            $chosen = $storageToUse -ne $null
+                        }
+                    }
                 }
 		    } else {
 			    $toCreate = $true
@@ -113,11 +125,11 @@ function AcquireStorageAccounts() {
                         $storageName = $null
 					    $storageName = GetStorageName $resourceGroupName $location $ChooseStorage
 					    Write-Host("Creating '$storageName' storage account")
-                        $storage = CreateStorageAccount $resourceGroupName $storageName $location
+                        $storageToUse = CreateStorageAccount $resourceGroupName $storageName $location
     
 					    $storageCreated = $true
 					    Write-Host("Storage '$storageName' created")
-					    $allStorages[$location] = [array]$allStorages[$location] += $storage
+					    $allStorages[$location] = [array]$allStorages[$location] += $storageToUse
 
                         $storageAccountResult = CreateStorageAccountResultObject -StorageAccountName $storageName -ResourceGroupName $resourceGroupName -Location $location -Status "New"
 				    }
@@ -135,14 +147,14 @@ function AcquireStorageAccounts() {
 			    }
 		    }
 		    else{
-			    $storage = $storage[0]
-			    $storageName = $storage.StorageAccountName
+			    $storageToUse = if ($storageToUse) {$storageToUse} else {$storages[0]}
+			    $storageName = $storageToUse.StorageAccountName
 
                 $storageAccountResult = CreateStorageAccountResultObject -StorageAccountName $storageName -ResourceGroupName $resourceGroupName -Location $location -Status "Existing"
 			    Write-Host("Using storage '$storageName' account for resource group '$resourceGroupName' in location '$location'")
 		    }
 
-		    $storages[$location] = [array]$storages[$location] += $storage
+		    $storagesToUse[$location] = [array]$storagesToUse[$location] += $storageToUse
             $SubscriptionResult.StorageAccounts += $storageAccountResult
 	    }
 	}
