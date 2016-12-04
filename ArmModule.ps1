@@ -141,14 +141,14 @@
         $VmLocation =  $Vm.Location
 
         $storageName = $Storage.StorageAccountName
-    	$storageKey = (Get-AzureRmStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $storageName)[0].Value
+    	$storageKey = (Get-AzureRmStorageAccountKey -ResourceGroupName $Storage.ResourceGroupName -Name $storageName)[0].Value
 	
 	    Write-Host("Enabling ARM diagnostics for '$VmName' virtual machine")
         
         Write-Host("Enabling diagnostics")
         switch -regex ($Vm.StorageProfile.OsDisk.OsType) {
             "[Ww]indows" {
-                Set-AzureRmVMDiagnosticsExtension -ResourceGroupName $ResourceGroupName -VMName $vmName -DiagnosticsConfigurationPath $CfgPath -StorageAccountName $StorageName -StorageAccountKey $storageKey
+                Set-AzureRmVMDiagnosticsExtension -ResourceGroupName $ResourceGroupName -VMName $vmName -DiagnosticsConfigurationPath $CfgPath -StorageAccountName $storageName -StorageAccountKey $storageKey
             }
             "[Ll]inux" {
 

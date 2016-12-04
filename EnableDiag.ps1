@@ -6,6 +6,7 @@
     [string] $OsType,
 	[switch] $ChooseSubscription,
 	[switch] $ChooseStorage,
+	[switch] $StoragePerLocation,
 	[switch] $ChooseVM,
 	[switch] $OverrideDiagnostics
 )
@@ -74,46 +75,88 @@ function AcquireStorageAccounts() {
 	$storagesToUse = @{}
     
 	$vmGroupedByLocation = $vms | Group-Object -Property Location
+
 	foreach ($vmLocationGroup in $vmGroupedByLocation) {
 
 	    $location =  $vmLocationGroup.Name;
 	    $locationStorages = $allStorages[$location]
+        $storagesToUse[$location] = @()
 
 	    Write-Host("Checking storage in '$location' location")
 
-	    $vmGroupedByResourceGroup = $vmLocationGroup.Group | Group-Object -Property ResourceGroupName
-	    foreach ($vmResourceGroupGroup in $vmGroupedByResourceGroup)
-	    {
-		    $resourceGroupName = $vmResourceGroupGroup.Name
-		    $storages = $locationStorages | where { $_.ResourceGroupName -eq $resourceGroupName  }
+        $storageToUse = $null
+        if ($StoragePerLocation) {
+            $input = Read-Host("Enter name for resource group (press enter to use 'DiagnosticStorageAccounts')")
 
-		    $toCreate = $false
-            $storageAccountResult = $null
+            $resourceGroupName = if ($input) {$input} else {"DiagnosticStorageAccounts"}
+            EnsureResourceGroupExists -ResourceGroupName $resourceGroupName -Location $location
 
-            $storageToUse = $null
-            if ($storages -ne $null) {
-                $storageToUse = SelectStorage $storages
-		    } 
+            $storageToUse = AcquireStorageAccountsInGroup -SubscriptionResult $SubscriptionResult -ResourceGroupName $resourceGroupName -StoragesToLookIn $locationStorages -Location $location -AllStorages $allStorages -StoragesToUse $storagesToUse
+        } else {
 
-		    if ($storageToUse -eq $null) {
-                $storageToUse = CreateStorage -ResourceGroupName $resourceGroupName -Location $location
-		        $allStorages[$location] = [array]$allStorages[$location] += $storageToUse
+            $vmGroupedByResourceGroup = $vmLocationGroup.Group | Group-Object -Property ResourceGroupName
+	        foreach ($vmResourceGroupGroup in $vmGroupedByResourceGroup)
+	        {
+                $resourceGroupName = $vmResourceGroupGroup.Name
+                $resourceGroupStorages = $LocationStorages | where { $_.ResourceGroupName -eq $resourceGroupName  }
+		        $storageToUse = AcquireStorageAccountsInGroup -SubscriptionResult $SubscriptionResult -ResourceGroupName $resourceGroupName -StoragesToLookIn $resourceGroupStorages -Location $location -AllStorages $allStorages -StoragesToUse $storagesToUse
+	        }
+        }
 
-			    $storageName = $storageToUse.StorageAccountName
-                $storageAccountResult = CreateStorageAccountResultObject -StorageAccountName $storageName -ResourceGroupName $resourceGroupName -Location $location -Status "New"
-			    Write-Host("'$storageName' storage account for resource group '$resourceGroupName' in location '$location' was created")
-		    }
-		    else{
-			    $storageName = $storageToUse.StorageAccountName
-                $storageAccountResult = CreateStorageAccountResultObject -StorageAccountName $storageName -ResourceGroupName $resourceGroupName -Location $location -Status "Existing"
-			    Write-Host("Using '$storageName' storage account for resource group '$resourceGroupName' in location '$location'")
-		    }
-
-		    $storagesToUse[$location] = [array]$storagesToUse[$location] += $storageToUse
-            $SubscriptionResult.StorageAccounts += $storageAccountResult
-	    }
 	}
-	return $storages
+	return $storagesToUse
+}
+
+function AcquireStorageAccountsInGroup() {
+    Param (
+        [System.Object]$SubscriptionResult,
+        [String]$ResourceGroupName,
+        [String]$Location,
+        [System.Array]$StoragesToLookIn,
+        [Hashtable]$AllStorages,
+        [Hashtable]$StoragesToUse
+
+	)
+	$toCreate = $false
+    $storageAccountResult = $null
+
+    $storageToUse = $null
+    if ($StoragesToLookIn -ne $null) {
+        $storageToUse = SelectStorage $StoragesToLookIn
+	} 
+
+	if ($storageToUse -eq $null) {
+        $storageToUse = CreateStorage -ResourceGroupName $ResourceGroupName -Location $Location
+	    [array]$AllStorages[$location] += $storageToUse
+
+	    $storageName = $storageToUse.StorageAccountName
+        $storageAccountResult = CreateStorageAccountResultObject -StorageAccountName $storageName -ResourceGroupName $ResourceGroupName -Location $Location -Status "New"
+	    Write-Host("'$storageName' storage account for resource group '$ResourceGroupName' in location '$Location' was created")
+	}
+	else{
+	    $storageName = $storageToUse.StorageAccountName
+        $storageAccountResult = CreateStorageAccountResultObject -StorageAccountName $storageName -ResourceGroupName $ResourceGroupName -Location $Location -Status "Existing"
+	    Write-Host("Using '$storageName' storage account for resource group '$ResourceGroupName' in location '$Location'")
+	}
+
+	[array]$StoragesToUse[$location] += $storageToUse
+    $SubscriptionResult.StorageAccounts += $storageAccountResult
+}
+
+function EnsureResourceGroupExists {
+    Param (
+        [Parameter(Mandatory=$true)]
+        [String] $ResourceGroupName,
+        [Parameter(Mandatory=$true)]
+        [String] $Location
+    )
+
+    $rg = Get-AzureRmResourceGroup -Name $ResourceGroupName -ErrorAction Ignore
+    if ($rg) {
+        return
+    }
+
+    New-AzureRmResourceGroup -Name $ResourceGroupName -Location $Location
 }
 
 function SelectStorage() {
@@ -314,8 +357,9 @@ foreach ($subscription in $subscriptions){
 			    if (!$toSet) {
 				    continue
 			    }
-
-	            $storage = $storages.Get_Item($vmLocation) | where {$_.ResourceGroupName -eq $resourceGroupName}
+                
+                $storageInLocation = $storages.Get_Item($vmLocation)
+	            $storage = if ($StoragePerLocation) {$storageInLocation} else {$storageInLocation | where {$_.ResourceGroupName -eq $resourceGroupName}}
                 $virtualMachineResult.StorageAccountName = $storage.StorageAccountName
     
                 SetDiagnostics $reloadedVm $storage
@@ -330,7 +374,7 @@ foreach ($subscription in $subscriptions){
 		}
 
         $subscriptionResult.Result.Status = "Succeed"
-	}
+    }
 	catch {
 		Write-Host("Failed to enable diagnostic for '$subscriptionName' subscription")
 		$_
@@ -338,5 +382,4 @@ foreach ($subscription in $subscriptions){
         $subscriptionResult.Result.ReasonOfFailure = $_
 	}
 }
-
 $Result | ConvertTo-Json -Compress -Depth 10 | Out-File ($path + "/logs/" + $DeploymentModel.ToLower() + "_" + ((Get-Date).ToUniversalTime()).ToString("yyyyMMddTHHmmssfffffffZ") + ".json")
