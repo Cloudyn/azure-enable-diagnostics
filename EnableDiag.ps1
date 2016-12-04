@@ -92,66 +92,21 @@ function AcquireStorageAccounts() {
 
             $storageToUse = $null
             if ($storages -ne $null) {
-                if ($ChooseStorage){
-			        Write-Host("There are existing storage account/s for resource group '$resourceGroupName' in location '$location'")
+                $storageToUse = SelectStorage $storages
+		    } 
 
-			        $storageName = $storages | foreach {Write-Host($_.StorageAccountName)}
-                    $toCreate = ToSkip "Use one of them?" $ChooseStorage
+		    if ($storageToUse -eq $null) {
+                $storageToUse = CreateStorage -ResourceGroupName $resourceGroupName -Location $location
+		        $allStorages[$location] = [array]$allStorages[$location] += $storageToUse
 
-                    if (!$toCreate) {
-
-                        $chosen = $false
-                        while (!$chosen) {
-                            $choice = Read-Host ("Enter name of storage account you want to use")
-                            $storageToUse = $storages | where {$_.StorageAccountName -eq $choice}
-
-                            $chosen = $storageToUse -ne $null
-                        }
-                    }
-                }
-		    } else {
-			    $toCreate = $true
-		    }
-
-		    if ($toCreate) {
-                Write-Host("Creating storage account'$storageName' for resource group '$resourceGroupName' in location '$location'")
-
-			    $retries = 0
-                $storageCreated = $false
-
-			    while (!$storageCreated)
-			    {
-                    try {
-                        $storageName = $null
-					    $storageName = GetStorageName $resourceGroupName $location $ChooseStorage
-					    Write-Host("Creating '$storageName' storage account")
-                        $storageToUse = CreateStorageAccount $resourceGroupName $storageName $location
-    
-					    $storageCreated = $true
-					    Write-Host("Storage '$storageName' created")
-					    $allStorages[$location] = [array]$allStorages[$location] += $storageToUse
-
-                        $storageAccountResult = CreateStorageAccountResultObject -StorageAccountName $storageName -ResourceGroupName $resourceGroupName -Location $location -Status "New"
-				    }
-				    catch {
-					    Write-Host("Failed to create storage")
-					    $_
-
-					    if  ($retries -ge 3) {
-						    Write-Host("Failed to create storage more than 3 times, terminating script")
-						    exit
-					    }
-					    Write-Host("Retry")
-					    $retries++;
-				    }
-			    }
+			    $storageName = $storageToUse.StorageAccountName
+                $storageAccountResult = CreateStorageAccountResultObject -StorageAccountName $storageName -ResourceGroupName $resourceGroupName -Location $location -Status "New"
+			    Write-Host("'$storageName' storage account for resource group '$resourceGroupName' in location '$location' was created")
 		    }
 		    else{
-			    $storageToUse = if ($storageToUse) {$storageToUse} else {$storages[0]}
 			    $storageName = $storageToUse.StorageAccountName
-
                 $storageAccountResult = CreateStorageAccountResultObject -StorageAccountName $storageName -ResourceGroupName $resourceGroupName -Location $location -Status "Existing"
-			    Write-Host("Using storage '$storageName' account for resource group '$resourceGroupName' in location '$location'")
+			    Write-Host("Using '$storageName' storage account for resource group '$resourceGroupName' in location '$location'")
 		    }
 
 		    $storagesToUse[$location] = [array]$storagesToUse[$location] += $storageToUse
@@ -159,6 +114,78 @@ function AcquireStorageAccounts() {
 	    }
 	}
 	return $storages
+}
+
+function SelectStorage() {
+    Param (
+        [Parameter(Mandatory=$true)]
+        [System.Object[]]$existsingStorageAccounts
+    )
+
+    if(!$ChooseStorage){
+        return $existsingStorageAccounts[0]
+    }
+
+	Write-Host("There are existing storage account/s for resource group '$resourceGroupName' in location '$location':")
+    Write-Host("")
+
+	$storageName = $existsingStorageAccounts | foreach {Write-Host($_.StorageAccountName)}
+    Write-Host("")
+
+    $toSkip = ToSkip "Use one of them?" $ChooseStorage
+    if ($toSkip) {
+        return $null
+    }
+
+    $selectedStorage = $null
+    $chosen = $false
+    while (!$chosen) {
+        $choice = Read-Host ("Enter name of storage account you want to use")
+        $selectedStorage = $existsingStorageAccounts | where {$_.StorageAccountName -eq $choice}
+
+        $chosen = $selectedStorage -ne $null
+    }
+
+    return $selectedStorage
+}
+
+function CreateStorage() {
+    Param (
+        [Parameter(Mandatory=$true)]
+        [string]$ResourceGroupName,
+        [Parameter(Mandatory=$true)]
+        [string]$Location
+              
+    )
+
+    $storageName = $null
+	$storageName = GetStorageName $ResourceGroupName $Location $ChooseStorage
+    Write-Host("Creating storage account'$storageName' for resource group '$resourceGroupName' in location '$location'")
+
+	$retries = 0
+    $storageCreated = $false
+
+	while (!$storageCreated)
+	{
+        try {
+		    Write-Host("Creating '$storageName' storage account")
+            $storageToUse = CreateStorageAccount $resourceGroupName $storageName $location
+    
+		    $storageCreated = $true
+            return $storageToUse
+	    }
+	    catch {
+		    Write-Host("Failed to create storage")
+		    $_
+
+		    if  ($retries -ge 3) {
+			    Write-Host("Failed to create storage more than 3 times, terminating script")
+			    exit
+		    }
+		    Write-Host("Retry")
+		    $retries++;
+	    }
+	}
 }
 
 function ToSetDiagnostics(){
