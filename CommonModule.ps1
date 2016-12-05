@@ -19,7 +19,7 @@
     
     	if ($DebugMode){
     		Write-Host ($Message)
-    		$response = Read-Host ("Enter 'y' for yes, 'n' for no, 'a' to abort script")
+    		$response = Read-Host ("Enter 'y' for yes (default), 'n' for no, 'a' to abort script")
     
     		if ($response -eq "a") {exit}
             if ($response -eq "" -or $response -eq "y") {return $false}
