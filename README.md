@@ -13,7 +13,10 @@ For each subscription assigned to the entered Azure login credentials:
 
 The user can control:
 * which subscriptions
-* which storage
+* which storage account
+* diagnostics storage account grouping methology:
+    * per location, or
+    * per resource group per location
 * which VMs: Classic/Arm, Windows/Linux
 * whether to override existing diagnostics settings
 
@@ -43,6 +46,9 @@ Install-Module AzureRM -Force
 * **ChooseStorage**
     * Prompt the user to choose/create which Standard Storage Accounts should be used per ResourceGroup-Location combination.
     * Default = false
+* **StoragePerLocation**
+    * Use a single Diagnostics Storage Account per location
+    * Default = Use a Diagnostics Storage Account per ResourceGroup per location
 * **ChooseVM**
     * Prompt the user to choose which VMs should have Diagnostics enabled.
     * Default = false
@@ -53,20 +59,25 @@ Install-Module AzureRM -Force
 
 #Examples
 Enable Diagnostics on all ARM specific VMs, within specific subscriptions.
-Automatically determine storage account to be used
+Automatically determine storage account to be used. Use a single storage account per location
 ```PowerShell
-.\EnableDiag.ps1 –DeploymentModel 'Arm'
+.\EnableDiag.ps1 –DeploymentModel 'Arm' -StoragePerLocation
+```
+Enable Diagnostics on all ARM specific VMs, within specific subscriptions.
+Automatically determine storage account to be used. Use a single storage account per location
+```PowerShell
+.\EnableDiag.ps1 –DeploymentModel 'Arm' -ChooseSubscription -StoragePerLocation 
 ```
 Enable Diagnostics on specific ARM VMs, within specific subscriptions.
-Automatically determine storage account to be used
+Automatically determine storage account to be used. Use storage account per resource group + location
 ```PowerShell
 .\EnableDiag.ps1 –DeploymentModel 'Arm' -ChooseSubscription -ChooseVM
 ```
-Enable Diagnostics on specific Classic VMs, within specific subscriptions, choosing storage
+Enable Diagnostics on specific Classic VMs, within specific subscriptions, choosing storage account resource group + location
 ```PowerShell
 .\EnableDiag.ps1 –DeploymentModel 'Classic' -ChooseSubscription -ChooseVM -ChooseStorage
 ```
-Enable Diagnostics on specific Classic Linux VMs, within specific subscriptions, overriding existing diagnostic settings.
+Enable Diagnostics on specific Classic Linux VMs, within specific subscriptions, overriding existing diagnostic settings. Use storage account per location per resource group.
 Automatically determine storage account to be used
 ```PowerShell
 .\EnableDiag.ps1 –DeploymentModel 'Classic' -OsType 'Linux' -OverrideDiagnostics
