@@ -86,7 +86,7 @@ function AcquireStorageAccounts() {
 
         $storageToUse = $null
         if ($StoragePerLocation) {
-            $input = Read-Host("Enter name for resource group (press enter to use 'DiagnosticStorageAccounts')")
+            $input = Read-Host("Enter name for resource group (press enter to use 'DiagnosticStorageAccounts') for new storage accounts")
 
             $resourceGroupName = if ($input) {$input} else {"DiagnosticStorageAccounts"}
             EnsureResourceGroupExists -ResourceGroupName $resourceGroupName -Location $location
@@ -122,7 +122,7 @@ function AcquireStorageAccountsInGroup() {
 
     $storageToUse = $null
     if ($StoragesToLookIn -ne $null) {
-        $storageToUse = SelectStorage $StoragesToLookIn
+        $storageToUse = SelectStorage $StoragesToLookIn -Location $Location -ResourceGroupName $ResourceGroupName
 	} 
 
 	if ($storageToUse -eq $null) {
@@ -135,8 +135,15 @@ function AcquireStorageAccountsInGroup() {
 	}
 	else{
 	    $storageName = $storageToUse.StorageAccountName
-        $storageAccountResult = CreateStorageAccountResultObject -StorageAccountName $storageName -ResourceGroupName $ResourceGroupName -Location $Location -Status "Existing"
-	    Write-Host("Using '$storageName' storage account for resource group '$ResourceGroupName' in location '$Location'")
+        $storageAccountResult = CreateStorageAccountResultObject -StorageAccountName $storageName -ResourceGroupName $storageToUse.ResourceGroupName -Location $Location -Status "Existing"
+
+        $message = $null
+        $message = if ($StoragePerLocation) {
+            "Using '$storageName' storage account in location '$Location'"
+        } else {
+            "Using '$storageName' storage account for resource group '$ResourceGroupName' in location '$Location'"
+        }
+	    Write-Host($message)
 	}
 
 	[array]$StoragesToUse[$location] += $storageToUse
@@ -162,14 +169,22 @@ function EnsureResourceGroupExists {
 function SelectStorage() {
     Param (
         [Parameter(Mandatory=$true)]
-        [System.Object[]]$existsingStorageAccounts
+        [System.Object[]]$existsingStorageAccounts,
+        [string]$Location,
+        [string]$ResourceGroupName
     )
 
     if(!$ChooseStorage){
         return $existsingStorageAccounts[0]
     }
 
-	Write-Host("There are existing storage account/s for resource group '$resourceGroupName' in location '$location':")
+    $message = if ($StoragePerLocation) {
+        "There are existing storage account/s in location '$location':"
+    } else {
+        "There are existing storage account/s for resource group '$resourceGroupName' in location '$location':"
+    }
+
+	Write-Host($message)
     Write-Host("")
 
 	$storageName = $existsingStorageAccounts | foreach {Write-Host($_.StorageAccountName)}
@@ -382,4 +397,5 @@ foreach ($subscription in $subscriptions){
         $subscriptionResult.Result.ReasonOfFailure = $_
 	}
 }
-$Result | ConvertTo-Json -Compress -Depth 10 | Out-File ($path + "/logs/" + $DeploymentModel.ToLower() + "_" + ((Get-Date).ToUniversalTime()).ToString("yyyyMMddTHHmmssfffffffZ") + ".json")
+$Result | ConvertTo-Json -Compress -Depth 10 | Out-File ($path + "/logs/" + 
+$DeploymentModel.ToLower() + "_" + ((Get-Date).ToUniversalTime()).ToString("yyyyMMddTHHmmssfffffffZ") + ".json")
