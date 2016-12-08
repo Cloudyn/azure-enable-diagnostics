@@ -19,12 +19,18 @@
     
     	if ($DebugMode){
     		Write-Host ($Message)
-    		$response = Read-Host ("Enter 'y' for yes (default), 'n' for no, 'a' to abort script")
-    
-    		if ($response -eq "a") {exit}
-            if ($response -eq "" -or $response -eq "y") {return $false}
-    
-    		return $true
+
+            $response = "y"
+            
+            while ($true) {
+    		    $response = Read-Host ("Enter 'y' for yes (default), 'n' for no, 'a' to abort script")
+                if (!$response) {$response = "y"}
+                switch -Regex ($response) {
+                    "(?i)^y(es)?$" {return $false}
+                    "(?i)^n(o)?$" {return $true}
+                    "(?i)^a(bort)?$" {exit}
+                }
+            }
     	}
     }
     
