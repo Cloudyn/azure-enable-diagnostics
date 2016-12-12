@@ -357,7 +357,7 @@ foreach ($subscription in $subscriptions){
 		Write-Host("Acquiring storage accounts")
 		
         $storages = @{}
-		$storages = [System.Object[]] (AcquireStorageAccounts $vms $subscriptionResult)
+		$storages = AcquireStorageAccounts $vms $subscriptionResult
 		foreach ($vm in $vms){
 			$resourceGroupName = $vm.ResourceGroupName
             $vmName = $vm.Name
