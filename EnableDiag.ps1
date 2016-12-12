@@ -356,7 +356,8 @@ foreach ($subscription in $subscriptions){
 		Write-Host ("Found $vmsCount virtual machines")
 		Write-Host("Acquiring storage accounts")
 		
-		$storages = AcquireStorageAccounts $vms $subscriptionResult
+        $storages = @{}
+		$storages = [System.Object[]] (AcquireStorageAccounts $vms $subscriptionResult)
 		foreach ($vm in $vms){
 			$resourceGroupName = $vm.ResourceGroupName
             $vmName = $vm.Name
@@ -397,5 +398,5 @@ foreach ($subscription in $subscriptions){
         $subscriptionResult.Result.ReasonOfFailure = $_
 	}
 }
-$Result | ConvertTo-Json -Compress -Depth 10 | Out-File ($path + "/logs/" + 
+$Result | ConvertTo-Json -Compress -Depth 7 | Out-File ($path + "/logs/" + 
 $DeploymentModel.ToLower() + "_" + ((Get-Date).ToUniversalTime()).ToString("yyyyMMddTHHmmssfffffffZ") + ".json")
