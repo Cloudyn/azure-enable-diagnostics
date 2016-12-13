@@ -374,7 +374,7 @@ foreach ($subscription in $subscriptions){
 				    continue
 			    }
                 
-                $storageInLocation = $storages.Get_Item($vmLocation)
+                $storageInLocation = ([hashtable]($storages)).Get_Item($vmLocation)
 	            $storage = if ($StoragePerLocation) {$storageInLocation} else {$storageInLocation | where {$_.ResourceGroupName -eq $resourceGroupName}}
                 $virtualMachineResult.StorageAccountName = $storage.StorageAccountName
     
