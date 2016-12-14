@@ -93,7 +93,7 @@
     		[System.Object] $Vm
     	)
 
-        $status = (Get-AzureRmVM -ResourceGroupName $Vm.ResourceGroupName -Name $Vm.Name -Status).VMAgent.Statuses
+        $status = (Get-AzureRmVM -ResourceGroupName $Vm.ResourceGroupName -Name $Vm.Name -Status).VMAgent
         return [bool] ($status.Statuses | foreach { [bool] ($_.DisplayStatus -eq "Ready") } | where { $_ } | select -first 1)
     }
 
