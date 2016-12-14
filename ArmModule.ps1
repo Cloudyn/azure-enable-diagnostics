@@ -87,6 +87,16 @@
         return [bool] ($status.Statuses | foreach { [bool] ($_.Code -eq "PowerState/running") } | where { $_ } | select -first 1)
     }
 
+    function IsVmAgentReady() {
+        Param (
+    		[Parameter(Mandatory=$true)]
+    		[System.Object] $Vm
+    	)
+
+        $status = Get-AzureRmVM -ResourceGroupName $Vm.ResourceGroupName -Name $Vm.Name -Status
+        return [bool] ($status.Statuses | foreach { [bool] ($_.DisplayStatus -eq "Ready") } | where { $_ } | select -first 1)
+    }
+
     function IsDiagnosticsEnabled() {
        	Param (
     		[Parameter(Mandatory=$true)]
@@ -184,6 +194,7 @@
     Export-ModuleMember -Function ReloadVm
     Export-ModuleMember -Function CreateStorageAccount
     Export-ModuleMember -Function IsRunning
+    Export-ModuleMember -Function IsVmAgentReady
     Export-ModuleMember -Function IsDiagnosticsEnabled
     Export-ModuleMember -Function SetVmDiagnostic
 

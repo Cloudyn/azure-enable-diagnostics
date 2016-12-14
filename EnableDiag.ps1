@@ -255,11 +255,19 @@ function ToSetDiagnostics(){
 	)
     
     $vmName = $Vm.Name
-    $isRunning = IsRunning $Vm
-    if (!$isRunning){
+    $isVmRunning = IsRunning $Vm
+    if (!$isVmRunning){
         Write-Host("'$vmName' VM is not running")
         $virtualMachineResult.Result.Status = "Skipped"
         $virtualMachineResult.Result.ReasonOfFailure = "Vm is not running"
+        return $false
+    }
+
+    $isVmAgentReady = IsVmAgentReady $Vm
+    if (!$isVmAgentReady){
+        Write-Host("VM agent on '$vmName' is not ready")
+        $virtualMachineResult.Result.Status = "Skipped"
+        $virtualMachineResult.Result.ReasonOfFailure = "Vm agent is not ready"
         return $false
     }
 

@@ -122,7 +122,15 @@
     	)
 
         return $vm.ClassicResource.PowerState -eq "Started"
+    }
 
+    function IsVmAgentReady() {
+        Param (
+    		[Parameter(Mandatory=$true)]
+    		[System.Object] $Vm
+    	)
+
+        return $vm.ClassicResource.GuestAgentStatus.Status -eq "Ready"
     }
 
     function IsDiagnosticsEnabled() {
@@ -202,6 +210,7 @@
     Export-ModuleMember -Function ReloadVm
     Export-ModuleMember -Function CreateStorageAccount
     Export-ModuleMember -Function IsRunning
+    Export-ModuleMember -Function IsVmAgentReady
     Export-ModuleMember -Function IsDiagnosticsEnabled
     Export-ModuleMember -Function SetVmDiagnostic
 
