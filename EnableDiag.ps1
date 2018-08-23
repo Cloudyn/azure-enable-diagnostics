@@ -10,6 +10,11 @@ Param (
     [string] $DeploymentModel,
     [ValidateSet("Windows","Linux")] 
     [string] $OsType,
+    [ValidateSet('AzureCloud',
+                 'AzureUSGovernment',
+                 'AzureChinaCloud',
+                 'AzureGermanCloud')]
+    [string] $Environment = 'AzureCloud',
 	[switch] $ChooseSubscription,
 	[switch] $ChooseStorage,
 	[switch] $StoragePerLocation,
@@ -335,16 +340,27 @@ EnableLogging $path
 $ErrorActionPreference = "Stop"
 
 $subscriptions = $null
-$subscriptions = LoadSubscriptions
+$subscriptions = LoadSubscriptions -EnvironmentName $Environment
 
 $subscriptionsCount = $subscriptions.Length
 Write-Host("Found $subscriptionsCount subscriptions")
 
 $Result = CreateResultObject
 foreach ($subscription in $subscriptions){
-	$subscriptionId = $subscription.SubscriptionId
-	$subscriptionName = $subscription.SubscriptionName
-
+    $subscriptionId = if ($subscription.SubscriptionId) {
+            $subscription.SubscriptionId
+        }
+        else {
+            $subscription.Id
+        }
+    $subscriptionName = if ($subscription.SubscriptionName)
+        {
+            $subscription.SubscriptionName
+        }
+        else {
+            $subscription.Name
+        }
+        
     $subscriptionResult = CreateSubscriptionResultObject -SubscriptionName $subscriptionName
     $Result.Subscriptions += $subscriptionResult
 
