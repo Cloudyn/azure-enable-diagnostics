@@ -342,8 +342,20 @@ Write-Host("Found $subscriptionsCount subscriptions")
 
 $Result = CreateResultObject
 foreach ($subscription in $subscriptions){
-	$subscriptionId = $subscription.SubscriptionId
-	$subscriptionName = $subscription.SubscriptionName
+    $subscriptionId = if ($subscription.SubscriptionId) {
+        $subscription.SubscriptionId
+    }
+    else {
+        $subscription.Id
+    }
+
+    $subscriptionName = if ($subscription.SubscriptionName)
+    {
+        $subscription.SubscriptionName
+    }
+    else {
+        $subscription.Name
+    }
 
     $subscriptionResult = CreateSubscriptionResultObject -SubscriptionName $subscriptionName
     $Result.Subscriptions += $subscriptionResult
