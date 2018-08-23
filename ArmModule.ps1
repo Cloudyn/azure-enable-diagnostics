@@ -6,8 +6,11 @@
 
 New-Module -name CommonModule -ScriptBlock {
 
-    function LoadSubscriptions() {
-        $default = Login-AzureRmAccount
+    function LoadSubscriptions($EnvironmentName) {
+        if (-not (Get-AzureRmContext -ErrorAction SilentlyContinue)) {
+            $null = Login-AzureRmAccount -Environment (Get-AzureRmEnvironment -Name $EnvironmentName)
+        }
+
         return Get-AzureRmSubscription | Where {$_.State -eq "Enabled"}
     }
 
@@ -164,7 +167,12 @@ New-Module -name CommonModule -ScriptBlock {
         Write-Host("Enabling diagnostics")
         switch -regex ($Vm.StorageProfile.OsDisk.OsType) {
             "[Ww]indows" {
-                Set-AzureRmVMDiagnosticsExtension -ResourceGroupName $ResourceGroupName -VMName $vmName -DiagnosticsConfigurationPath $CfgPath -StorageAccountName $storageName -StorageAccountKey $storageKey
+                if (-not (Get-AzureRmVMDiagnosticsExtension -ResourceGroupName $ResourceGroupName -VMName $vmName)) {
+                    Set-AzureRmVMDiagnosticsExtension -ResourceGroupName $ResourceGroupName -VMName $vmName -DiagnosticsConfigurationPath $CfgPath -StorageAccountName $storageName -StorageAccountKey $storageKey
+                }
+                else {
+                    Write-Host "$vmName --> Diagnostics already configured, skipping"
+                }
             }
             "[Ll]inux" {
 
@@ -184,7 +192,14 @@ New-Module -name CommonModule -ScriptBlock {
                 }
 
                 Write-Host("Using $extensionName as linux diagnostics extension name")
-                Set-AzureRmVMExtension -ResourceGroupName $ResourceGroupName -VMName $vmName -Publisher "Microsoft.OSTCExtensions" -ExtensionType "LinuxDiagnostic" -Name $extensionName -Location $VmLocation -Settings $publicSetting -ProtectedSettings $privateSettings -TypeHandlerVersion "2.3" 
+
+                if (-not (Get-AzureRmVMExtension -ResourceGroupName $ResourceGroupName -VMName $vmName -Name $extensionName -ErrorAction SilentlyContinue)) {
+                    Set-AzureRmVMExtension -ResourceGroupName $ResourceGroupName -VMName $vmName -Publisher "Microsoft.OSTCExtensions" -ExtensionType "LinuxDiagnostic" `
+                        -Name $extensionName -Location $VmLocation -Settings $publicSetting -ProtectedSettings $privateSettings -TypeHandlerVersion "2.3" 
+                }
+                else {
+                    Write-Host "$vmName --> Diagnostics already configured, skipping"
+                }
             } 
             default {throw [System.InvalidOperationException] "$OsType is not supported. Allowed values are 'Windows' or 'Linux' "}
         }
